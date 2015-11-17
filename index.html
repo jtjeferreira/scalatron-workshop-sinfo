@@ -652,7 +652,11 @@
             ## Control Function
             ```scala
             class ControlFunctionFactory {
-                def create: (String => String) = (input: String) => "Status(text=hello)"
+              def create = new ControlFunction().respond _
+            }
+
+            class ControlFunction {
+              def respond(input: String) = "Status(text=hello)"
             }
             ```
           </script>
@@ -663,7 +667,7 @@
             ## Opcodes of Server-to-Bot Commands
             ```scala
             Welcome(
-              name=String,
+              name=string,
               path=string,
               apocalypse=int,
               round=int
@@ -692,9 +696,7 @@
 
             Spawn(direction=int:int,name=string,energy=int)
 
-            Set(key=value,...)
-
-            Explode(size=int)
+            Status(text=string)
 
             //Multiple commands Move(...)|Spawn(...)
 
@@ -707,12 +709,12 @@
             <div class="fragment" data-markdown>
                 <script class="fragment" type="text/template">
                 ```scala
-                class ControlFunction {
-                    def respond(input: String) = "Status(text=Hello World)"
-                }
-
                 class ControlFunctionFactory {
                     def create = new ControlFunction().respond _
+                }
+
+                class ControlFunction {
+                    def respond(input: String) = "Status(text=Hello World)"
                 }
                 ```
                 </script>
@@ -724,6 +726,29 @@
             <div class="fragment" data-markdown>
                 <script class="fragment" type="text/template">
                 ```scala
+                class ControlFunctionFactory {
+                    def create = new ControlFunction().respond _
+                }
+
+                class ControlFunction {
+                    var n = 0
+                    val directions = ???
+                    def respond(input: String) = ???
+                }
+                ```
+                </script>
+            </div>
+        </section>
+
+        <section>
+            <h2>Move in circles bot</h2>
+            <div class="fragment" data-markdown>
+                <script class="fragment" type="text/template">
+                ```scala
+                class ControlFunctionFactory {
+                    def create = new ControlFunction().respond _
+                }
+
                 class ControlFunction {
                     var n = 0
                     val directions = List("0:1","1:0","0:-1","-1:0")
@@ -733,89 +758,104 @@
                       "Move(direction="+ direction +")"
                     }
                 }
-
-                class ControlFunctionFactory {
-                    def create = new ControlFunction().respond _
-                }
                 ```
                 </script>
             </div>
         </section>
 
         <section>
-            <h2>Command parser function</h2>
-            <div class="fragment" data-markdown>
-                <script class="fragment" type="text/template">
-                    ```scala
-                    class ControlFunction {
-                        def respond(input: String) = {
-                            val (opcode, paramMap) = CommandParser(input)
-                            if(opcode=="React") {
-                                "Status(text=Energy:" + paramMap("energy") + ")"
-                            } else {
-                                ""
-                            }
-                        }
-                    }
-
-                    object CommandParser {
-                        //"React(generation=0,energy=100)"
-                        //returns ("React", Map( "generation" -> "0", "energy" -> "100") )
-                        def apply(command: String): (String, Map[String, String]) = ???
-                    }
-                    ```
-                </script>
-            </div>
-        </section>
-
-        <section>
-            <h2>Command parser function tips</h2>
-            <div class="fragment" data-markdown>
-                <script class="fragment" type="text/template">
-                    ```scala
-                    String.split(String): Array[String]
-
-                    String is Array[Char]...
-
-                    Access a Array index: array.apply(index) or array(index)
-                    ```
-                </script>
-            </div>
-        </section>
-
-        <section>
-            <h2>Command parser function</h2>
-            <div class="fragment" data-markdown>
-                <script class="fragment" type="text/template">
-                    ```scala
-                    object CommandParser {
-                        def apply(command: String) = {
-                            def splitParam(param: String) = {
-                                val segments = param.split('=')
-                                if( segments.length != 2 )
-                                    throw new IllegalStateException("invalid key/value pair: " + param)
-                                (segments(0),segments(1))
-                            }
-
-                            val segments = command.split('(')
-                            if( segments.length != 2 )
-                                throw new IllegalStateException("invalid command: " + command)
-
-                            val params = segments(1).dropRight(1).split(',')
-                            val keyValuePairs = params.map( splitParam ).toMap
-                            (segments(0), keyValuePairs)
-                        }
-                    }
-                    ```
-                </script>
-            </div>
-        </section>
-
-        <section>
             <h2>Food finder bot</h2>
+        </section>
+
+        <section>
+            <h2>Command parser</h2>
             <div class="fragment" data-markdown>
                 <script class="fragment" type="text/template">
-                    ### Case class XY
+                    ```scala
+                    sealed trait Command
+                    case class Welcome(name: String, apocalypse: Int, round: Int) extends Command
+                    case class React(generation: Int, name: String, time: Int, view: View,
+                                     energy: Int, master: Option[XY], collision: Option[XY]) extends Command
+                    case class Goodbye(energy: Int) extends Command
+                    
+                    
+                    object CommandParser {
+                      def apply(input: String): Command = ???
+                    }
+                    ```
+                </script>
+            </div>
+        </section>
+        
+        <section>
+            <h2>Command parser</h2>
+            <div class="fragment" data-markdown>
+                <script class="fragment" type="text/template">
+                    ```scala
+                    object CommandParser {
+                    
+                      def apply(input: String): Command = ???
+                      
+                      private def extractMappings(command: String): (String, Map[String, String]) = {
+                        val segments = command.split('(')
+                        if( segments.length != 2 )
+                          throw new IllegalStateException("invalid command: " + command)
+
+                        val params = segments(1).dropRight(1).split(',')
+                        val keyValuePairs = params.map( splitParam ).toMap
+                        (segments(0), keyValuePairs)
+                      }
+
+                      private def splitParam(param: String): (String, String) = {
+                        val segments = param.split('=')
+                        if( segments.length != 2 )
+                          throw new IllegalStateException("invalid key/value pair: " + param)
+                        (segments(0),segments(1))
+                      }
+                    }
+                    ```
+                </script>
+            </div>
+        </section>
+        
+        <section>
+            <h2>Command parser</h2>
+            <div class="fragment" data-markdown>
+                <script class="fragment" type="text/template">
+                    ```scala
+                    object CommandParser {
+                      def apply(input: String): Command = {
+                        val (opcode, mappings) = extractMappings(input)
+                        opcode match {
+                          case "Welcome" => Welcome(
+                            mappings("name"),
+                            mappings("apocalypse").toInt,
+                            mappings("rounds").toInt
+                          )
+                          case "React" => React(
+                            mappings("generation").toInt,
+                            mappings("name"),
+                            mappings("time").toInt,
+                            View(mappings("view")),
+                            mappings("energy").toInt,
+                            mappings.get("master") map XY.apply,
+                            mappings.get("collision") map XY.apply
+                          )
+                          case "Goodbye" => Goodbye(
+                            mappings("energy").toInt
+                          )
+                        }
+                      }
+                    }
+                    ```
+                </script>
+            </div>
+        </section>
+        
+        <section>
+            <h2>Case class XY</h2>
+            <div class="fragment" data-markdown>
+                <script class="fragment" type="text/template">
                     ```scala
                     case class XY(x: Int, y: Int) {
                         def isNonZero: Boolean = ???
@@ -845,15 +885,14 @@
         </section>
 
         <section>
-            <h2>Food finder bot</h2>
+            <h2>Case class XY Implementation</h2>
             <div class="fragment" data-markdown>
                 <script class="fragment" type="text/template">
-                    ### Case class XY Implementation
                     ```scala
                     case class XY(x: Int, y: Int) {
-                        def isNonZero = x!=0 || y!=0
-                        def isZero = x==0 && y==0
-                        def isNonNegative = x>=0 && y>=0
+                        def isNonZero = x != 0 || y != 0
+                        def isZero = x == 0 && y == 0
+                        def isNonNegative = x >= 0 && y >= 0
 
                         def updateX(newX: Int) = XY(newX, y)
                         def updateY(newY: Int) = XY(x, newY)
@@ -883,8 +922,6 @@
                             XY(xy(0), xy(1))
                         }
 
-                        def random(rnd: Random) = XY(rnd.nextInt(3)-1, rnd.nextInt(3)-1)
-
                         val Zero = XY(0,0)
                         val One =  XY(1,1)
 
@@ -901,34 +938,11 @@
                 </script>
             </div>
         </section>
-
+        
         <section>
-            <h2>Food finder bot</h2>
+            <h2>Parse view</h2>
             <div class="fragment" data-markdown>
                 <script class="fragment" type="text/template">
-                    ### Revisiting move in circles bot
-                    ```scala
-                    class ControlFunction {
-                        var n = 0
-                        val directions = List(XY.Down,XY.Right,XY.Up,XY.Left)
-                        def respond(input: String) = {
-                          val direction = directions(n%4)
-                          n += 1
-                          "Move(direction="+ direction +")"
-                        }
-                    }
-                    ```
-                </script>
-            </div>
-        </section>
-
-
-
-        <section>
-            <h2>Food finder bot</h2>
-            <div class="fragment" data-markdown>
-                <script class="fragment" type="text/template">
-                    ### Parse view
                     ```scala
                     React(view=WWWWWWWW_____WW_____WW__M__WW_____WW____PWWWWWWWW)
 
@@ -947,37 +961,11 @@
                 </script>
             </div>
         </section>
-
+        
         <section>
-            <h2>Food finder bot</h2>
+            <h2>View class methods</h2>
             <div class="fragment" data-markdown>
                 <script class="fragment" type="text/template">
-                    ### View Class
-                    ```scala
-                    class ControlFunction {
-                        def respond(input: String): String = {
-                            val (opcode, paramMap) = CommandParser(input)
-                            if( opcode == "React" ) {
-                                val viewString = paramMap("view")
-                                val view = View(viewString)
-                                //use view methods to find food and move to it
-                            } else ""
-                        }
-                    }
-
-                    case class View(cells: String) {
-
-                    }
-                    ```
-                </script>
-            </div>
-        </section>
-
-        <section>
-            <h2>Food finder bot</h2>
-            <div class="fragment" data-markdown>
-                <script class="fragment" type="text/template">
-                    ### View Class methods
                     ```scala
                     case class View(cells: String) {
                         val size = math.sqrt(cells.length).toInt
@@ -1001,35 +989,11 @@
                 </script>
             </div>
         </section>
-
+        
         <section>
-            <h2>Food finder bot</h2>
+            <h2>View Class methods</h2>
             <div class="fragment" data-markdown>
                 <script class="fragment" type="text/template">
-                    ### View Class
-                    ```scala
-
-                    if( opcode == "React" ) {
-                        val viewString = paramMap("view")
-                        val view = View(viewString)
-                        view.offsetToNearest('P') match {
-                            case Some(offset) =>
-                                val unitOffset = offset.signum
-                                "Move(direction=" + unitOffset + ")|Status(text=Harvesting)"
-                            case None =>
-                                "Status(text=No Food Visible)"
-                        }
-                    } else ""
-                    ```
-                </script>
-            </div>
-        </section>
-
-        <section>
-            <h2>Food finder bot</h2>
-            <div class="fragment" data-markdown>
-                <script class="fragment" type="text/template">
-                    ### View Class
                     ```scala
                     case class View(cells: String) {
                         def offsetToNearest(c: Char) = {
@@ -1049,9 +1013,51 @@
                 </script>
             </div>
         </section>
+        
+        <section>
+            <h2>Food finder bot</h2>
+            <div class="fragment" data-markdown>
+                <script class="fragment" type="text/template">
+                    ```scala
+                    class ControlFunction {
+                      def respond(input: String): String = {
+                        val command = CommandParser(input)
+                        command match {
+                          case react: React => ???
+                          case _ => ""
+                        }
+                      }
+                    }
+                    ```
+                </script>
+            </div>
+        </section>
+        
+        <section>
+            <h2>Food finder bot</h2>
+            <div class="fragment" data-markdown>
+                <script class="fragment" type="text/template">
+                    ```scala
+                    class ControlFunction {
+                      def respond(input: String): String = {
+                        val command = CommandParser(input)
+                        command match {
+                          case react: React =>
+                            react.view.offsetToNearest('P') match {
+                              case Some(offset) => s"Move(direction=$offset)|Status(text=Harvesting)"
+                              case None => "Status(text=No Food Visible)"
+                            }
+                          case _ => ""
+                        }
+                      }
+                    }
+                    ```
+                </script>
+            </div>
+        </section>
 
         <section>
-            <h2>Thats it folks</h2>
+            <h2>That's all folks!</h2>
         </section>
 
       </div>
