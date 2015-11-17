@@ -42,22 +42,27 @@
 			<div class="slides">
         <section>
           <h2>A scala introduction</h2>
-          <h4>João Ferreira @jtjeferreira</h4>
+          <h4>João Ferreira <a href="https://twitter.com/jtjeferreira">@jtjeferreira</a></h4>
+					<h4>Pedro Ramos <a href="https://twitter.com/pedropalmaramos">@pedropalmaramos</a></h4>
         </section>
 
-        <section>
-            <h2>Disclaimer</h2>
-            <h5>Parts of this presentation were taken with permission from <a href="http://github.com/stanch">Nick Stanch</a> presentation on Fun(lx) Meetup</h5>
-
-        </section>
-
-        <section>
+				<section>
           <h2>Who…</h2>
           <h3>…makes Scala?</h3>
-          <img src="http://lampwww.epfl.ch/~roeckl/epfl_logo.gif" height="90" style="background: white"/>
-          <img src="http://dommkopfq6m1m.cloudfront.net/assets/images/svg/logo/typesafe_color_reverse.svg" height="90" style="background: #103a51"/>
+          <img src="http://lampwww.epfl.ch/~roeckl/epfl_logo.gif" height="40" style="background: white"/>
+          <img src="http://dommkopfq6m1m.cloudfront.net/assets/images/svg/logo/typesafe_color_reverse.svg" height="40" style="background: #103a51"/>
           <h3>…uses Scala?</h3>
-          <img src="https://dommkopfq6m1m.cloudfront.net/assets/images/home/37637fe316eb36ce1a3bd529b2e0eefa-clients.png" style="background: white"/>
+          <img src="https://dommkopfq6m1m.cloudfront.net/assets/images/home/37637fe316eb36ce1a3bd529b2e0eefa-clients.png" height="300" style="background: white"/>
+        </section>
+
+				<section>
+          <h2>Scala</h2>
+					<img src="3957416434_fdd398c2a9_o.jpg" height="500"/>
+        </section>
+
+				<section>
+          <h2>Scala</h2>
+					<img src="https://raw.githubusercontent.com/OlegIlyenko/scala-icon/master/scala-icon.png" height="500"/>
         </section>
 
         <section>
@@ -175,8 +180,8 @@
                 println("I have been born")
               }
 
-              val person = new Person("Nick", "Stanchenko")
-              assert(person.name == "Nick Stanchenko")
+              val person = new Person("João", "Ferreira")
+              assert(person.name == "João Ferreira")
               ```
             </script>
           </div>
@@ -316,7 +321,7 @@
 
             * Cool functional collections
             * Fantastic concurrency support
-            * Web, GUI
+            * Web
           </script>
         </section>
 
@@ -397,37 +402,6 @@
         </section>
 
         <section>
-          <h2>Async <a href="https://github.com/scala/async">(info)</a></h2>
-          <div class="fragment" data-markdown>
-            <script type="text/template">
-              Juggle futures with ease
-              ```scala
-              // our futures
-              val x: Future[Int] = ...
-              val y: Future[Int] = ...
-
-              // no blocking here!
-              val z: Future[Int] = async {
-                await(x) + await(y)
-              }
-              ```
-            </script>
-          </div>
-          <div class="fragment" data-markdown>
-            <script type="text/template">
-              Entire async workflows
-              ```scala
-              async {
-                val data = await(getDataFromDatabase(38))
-                val processed = await(processData(data))
-                await(prettify(processed))
-              }
-              ```
-            </script>
-          </div>
-        </section>
-
-        <section>
           <h2>Akka <a href="http://akka.io/">(info)</a></h2>
           <div class="fragment" data-markdown>
             <script type="text/template">
@@ -447,14 +421,12 @@
               Ping-ping
               ```scala
               case class Ping(x: Int)
-
               class A extends Actor {
                 context.actorSelection("../b") ! Ping(22)
                 def receive = {
                   case Ping(x) ⇒ sender ! Ping(x + 1)
                 }
               }
-
               class B extends Actor {
                 def receive = {
                   case Ping(x) ⇒ sender ! Ping(x + 2)
@@ -472,9 +444,14 @@
               * Uses Akka
               * Actors handle HTTP requests
               * Connects Actor system to the web
+              * Is being replaced by Akka HTTP
             </script>
           </div>
-          <div class="fragment" data-markdown>
+        </section>
+
+				<section>
+          <h2>Spray <a href="http://spray.io/">(info)</a></h2>
+					<div class="fragment" data-markdown>
             <script type="text/template">
               Routing DSL
               ```scala
@@ -547,7 +524,7 @@
 
               version := "1.0.0-RC3"
 
-              scalaVersion := "2.10.3"
+              scalaVersion := "2.11.7"
 
               libraryDependencies ++= Seq(
                 "com.typesafe.play" %% "play-json" % "2.2.0",
