@@ -162,6 +162,37 @@
             ```
           </script>
         </section>
+        
+        <section>
+          <h2>Flexible syntax</h2>
+          <div class="fragment" data-markdown>
+            <script type="text/template">
+              ```scala
+              List("a", "b", "c").contains("b")
+              // is equivalent to
+              List("a", "b", "c") contains "b"
+              ```
+            </script>
+          </div>
+          <div class="fragment" data-markdown>
+            <script type="text/template">
+              ```scala
+              3 + 4
+              // is equivalent to
+              3.+(4)
+              ```
+            </script>
+          </div>
+          <div class="fragment" data-markdown>
+            <script type="text/template">
+              ```scala
+              "string".length()
+              // is equivalent to
+              "string".length
+              ```
+            </script>
+          </div>
+        </section>
 
         <section>
           <h2>Classes &amp; objects</h2>
