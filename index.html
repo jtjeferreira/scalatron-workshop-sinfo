@@ -777,8 +777,8 @@
                     case class React(generation: Int, name: String, time: Int, view: View,
                                      energy: Int, master: Option[XY], collision: Option[XY]) extends Command
                     case class Goodbye(energy: Int) extends Command
-                    
-                    
+
+
                     object CommandParser {
                       def apply(input: String): Command = ???
                     }
@@ -786,16 +786,16 @@
                 </script>
             </div>
         </section>
-        
+
         <section>
             <h2>Command parser</h2>
             <div class="fragment" data-markdown>
                 <script class="fragment" type="text/template">
                     ```scala
                     object CommandParser {
-                    
+
                       def apply(input: String): Command = ???
-                      
+
                       private def extractMappings(command: String): (String, Map[String, String]) = {
                         val segments = command.split('(')
                         if( segments.length != 2 )
@@ -817,7 +817,7 @@
                 </script>
             </div>
         </section>
-        
+
         <section>
             <h2>Command parser</h2>
             <div class="fragment" data-markdown>
@@ -851,7 +851,7 @@
                 </script>
             </div>
         </section>
-        
+
         <section>
             <h2>Case class XY</h2>
             <div class="fragment" data-markdown>
@@ -936,7 +936,7 @@
                 </script>
             </div>
         </section>
-        
+
         <section>
             <h2>Parse view</h2>
             <div class="fragment" data-markdown>
@@ -959,7 +959,7 @@
                 </script>
             </div>
         </section>
-        
+
         <section>
             <h2>View class methods</h2>
             <div class="fragment" data-markdown>
@@ -987,7 +987,7 @@
                 </script>
             </div>
         </section>
-        
+
         <section>
             <h2>View Class methods</h2>
             <div class="fragment" data-markdown>
@@ -1011,7 +1011,7 @@
                 </script>
             </div>
         </section>
-        
+
         <section>
             <h2>Food finder bot</h2>
             <div class="fragment" data-markdown>
@@ -1030,7 +1030,7 @@
                 </script>
             </div>
         </section>
-        
+
         <section>
             <h2>Food finder bot</h2>
             <div class="fragment" data-markdown>
@@ -1057,6 +1057,97 @@
         <section>
             <h2>That's all folks!</h2>
         </section>
+
+        <section>
+          <section data-markdown>
+            <script type="text/template">
+              ## Pushing the boundaries
+
+              * Sized Collections
+              * HLists
+              * Monads
+              * Macros
+            </script>
+          </section>
+          <section data-markdown>
+            <script type="text/template">
+              ## Sized Collections
+
+              Problem
+              ```scala
+              def foo(a: Array[Int], b: Array[Int])
+              ```
+              guaranteeing that a and b have the same size
+            </script>
+          </section>
+          <section data-markdown>
+            <script type="text/template">
+              ## Sized Collections
+
+              ```scala
+              def foo(a: Int, b: Int)
+              def foo(a: (Int, Int), b: (Int, Int))
+              def foo(a: (Int, Int, Int), b: (Int, Int, Int))
+              def foo(a: (Int, Int, Int, Int), b: (Int, Int, Int, Int))
+              ...
+              ```
+            </script>
+          </section>
+          <section data-markdown>
+            <script type="text/template">
+              ## Sized Collections
+              Shapeless to the rescue
+              ```scala
+              //a and b have size 3
+              def foo(a: Sized[Int, nat._3], b: Sized[Int, nat._3]) = ???
+              ```
+            </script>
+          </section>
+          <section data-markdown>
+            <script type="text/template">
+              ## Sized Collections
+              Shapeless to the rescue
+              ```scala
+              //a and b have size 3
+              def foo[N <: Nat]
+                (a: Sized[Int, N], b: Sized[Int, N]) = ???
+
+              //we could even say that
+              def foo[N <: Nat, M <: Nat]
+                (a: Sized[Int, N], b: Sized[Int, M])
+                (implicit ltEq: N <= M) = ???
+              ```
+            </script>
+          </section>
+          <section data-markdown>
+            <script type="text/template">
+              ## Hlists
+
+              * Tuples
+                * **Fixed** length sequence of **distinct** types
+                ```scala
+                val t: (Int, String, Long) = (1, "2", 3l)
+                ```
+              * Collections
+                * **Varying** length sequence of elements of the **same** types
+                ```scala
+                val c1: Seq[Any] = Seq(1, "2", 3l)
+                val c2: Seq[String] = Seq("1", "2", "3")
+                ```
+              * HLists
+                * **Varying** length sequence of elements of **distinct** type
+                ```scala
+                val hl = 1 ::  "2" ::  3l :: HNil
+                val first: Int = hl(0)
+                val second: String = hl(0)
+                ```
+            </script>
+          </section>
+          <section>
+              <h2>Questions??</h2>
+          </section>
+        </section>
+
 
       </div>
 
